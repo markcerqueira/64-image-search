@@ -37,7 +37,7 @@ public class GoogleImageSearchWrapper {
 
                     Log.i(TAG, "fetchImages - response received: " + builder.toString());
                 } catch(Exception e) {
-                    Log.e(TAG, "fetchImages - exception thrown: " + e.getStackTrace());
+                    Log.e(TAG, "fetchImages - exception thrown: " + e);
 
                     if(callbackListener != null) {
                         callbackListener.imageSearchResponseReceived(null);
