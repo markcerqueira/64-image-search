@@ -102,6 +102,7 @@ public class MainActivity extends Activity {
         // if googleImageList is null, we are starting a query, so show loading view
         if(googleImageList == null) {
             mLoadingImagesView.setVisibility(View.VISIBLE);
+            mNoResultsView.setVisibility(View.GONE);
         } else {
             Log.i(TAG, "fetchImages - passed googleImageList contains " + googleImageList.getImageUrlList().size() + " images");
         }
@@ -112,6 +113,9 @@ public class MainActivity extends Activity {
             mImageGridView.setAdapter(mImageAdapter);
             updateViewVisibility(googleImageList.getImageUrlList().size());
 
+            return;
+        } else if(googleImageList != null && googleImageList.getImageUrlList().size() == 0) {
+            updateViewVisibility(0);
             return;
         }
 
