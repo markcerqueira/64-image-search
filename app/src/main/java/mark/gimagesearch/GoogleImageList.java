@@ -11,15 +11,21 @@ public class GoogleImageList {
     private static final String TAG = GoogleImageList.class.getName();
 
     private ArrayList<String> mImageUrlList = new ArrayList<String>();
+    private String mSearchTerm;
     private int pagesFetched;
 
-    public GoogleImageList(ImageSearchResponse imageSearchResponse) {
+    public GoogleImageList(String searchTerm, ImageSearchResponse imageSearchResponse) {
+        mSearchTerm = searchTerm;
         appendImageUrls(imageSearchResponse);
         pagesFetched = 0;
     }
 
     public ArrayList<String> getImageUrlList() {
         return mImageUrlList;
+    }
+
+    public String getSearchTerm() {
+        return mSearchTerm;
     }
 
     public String imageUrlListToString() {
@@ -33,6 +39,10 @@ public class GoogleImageList {
         sb.setLength(sb.length() - 2);
 
         return sb.toString();
+    }
+
+    public boolean canFetchMoreResults() {
+        return pagesFetched < 16;
     }
 
     public int getNextPageIndex() {

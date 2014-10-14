@@ -54,7 +54,7 @@ public class GoogleImageSearchAPI {
                 if (googleImageList == null) {
                     Log.i(TAG, "fetchImages - new GoogleImageList object created");
 
-                    callbackListener.imageSearchResponseReceived(new GoogleImageList(imageSearchResponse));
+                    callbackListener.imageSearchResponseReceived(new GoogleImageList(searchTerm, imageSearchResponse));
                 } else {
                     Log.i(TAG, "fetchImages - appending result to existing GoogleImageList");
 

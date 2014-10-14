@@ -59,8 +59,6 @@ public class MainActivity extends Activity {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                Log.i(TAG, "getView - called for position: " + position);
-
                 if (convertView == null || !(convertView instanceof ImageGridListItem)) {
                     convertView = ImageGridListItem.newInstance(MainActivity.this);
                 }
@@ -72,7 +70,7 @@ public class MainActivity extends Activity {
         };
     }
 
-    private void fetchImages(final String searchQuery) {
+    private void fetchImages(final String searchQuery, final GoogleImageList googleImageList) {
         Log.i(TAG, "fetchImages - called with query: " + searchQuery);
 
         if(searchQuery == null) {
@@ -81,29 +79,30 @@ public class MainActivity extends Activity {
             // TODO show error toast
         }
 
-        GoogleImageSearchAPI.fetchImages(searchQuery, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
+        GoogleImageSearchAPI.fetchImages(searchQuery, googleImageList, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
             @Override
             public void imageSearchResponseReceived(GoogleImageList googleImageList) {
                 Log.i(TAG, "fetchImages - called back with " + googleImageList.getImageUrlList().size() + " images");
 
-                Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
+                // Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
 
-                /* GoogleImageSearchAPI.fetchImages(searchQuery, googleImageList, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
-                    @Override
-                    public void imageSearchResponseReceived(GoogleImageList googleImageList) {
-                        Log.i(TAG, "fetchImages - called back with " + googleImageList.getImageUrlList().size() + " images");
-
-                        Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
-                    }
-                }); */
-
-                mCurrentGoogleImageList = googleImageList;
-
-                mImageGridView.setAdapter(mImageAdapter);
-
-                updateViewVisibility(googleImageList.getImageUrlList().size());
+                updateWithNewGoogleImageList(googleImageList);
             }
         });
+    }
+
+    @UiThread
+    protected void updateWithNewGoogleImageList(GoogleImageList googleImageList) {
+        mCurrentGoogleImageList = googleImageList;
+
+        mImageGridView.setAdapter(mImageAdapter);
+
+        // pro-actively fetch the URLs for the rest of the images (up to 64)
+        if(mCurrentGoogleImageList.canFetchMoreResults()) {
+            fetchImages(googleImageList.getSearchTerm(), googleImageList);
+        }
+
+        updateViewVisibility(googleImageList.getImageUrlList().size());
     }
 
     @UiThread
@@ -153,7 +152,7 @@ public class MainActivity extends Activity {
 
                 searchView.clearFocus();
 
-                fetchImages(query);
+                fetchImages(query, null);
 
                 return true;
             }
