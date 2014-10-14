@@ -8,8 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.SearchView;
 
-import mark.gimagesearch.models.ImageSearchResponse;
-
 public class MainActivity extends Activity {
     private static final String TAG = MainActivity.class.getName();
 
@@ -28,10 +26,12 @@ public class MainActivity extends Activity {
             // TODO show error toast
         }
 
-        GoogleImageSearchWrapper.fetchImages(searchQuery, new GoogleImageSearchWrapper.GoogleImageSearchCallbackInterface() {
+        GoogleImageSearchAPI.fetchImages(searchQuery, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
             @Override
-            public void imageSearchResponseReceived(ImageSearchResponse imageSearchResponse) {
-                Log.i(TAG, "fetchImages - called back with " + imageSearchResponse.responseData.resultsList.size() + " images");
+            public void imageSearchResponseReceived(GoogleImageList googleImageList) {
+                Log.i(TAG, "fetchImages - called back with " + googleImageList.getImageUrlList().size() + " images");
+
+                Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
             }
         });
     }

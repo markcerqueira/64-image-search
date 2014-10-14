@@ -1,4 +1,4 @@
-package mark.gimagesearch;
+package mark.gimagesearch.utils;
 
 import android.util.Log;
 

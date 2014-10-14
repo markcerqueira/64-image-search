@@ -1,4 +1,4 @@
-package mark.gimagesearch;
+package mark.gimagesearch.utils;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;

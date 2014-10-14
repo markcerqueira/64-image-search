@@ -9,12 +9,14 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import mark.gimagesearch.models.ImageSearchResponse;
+import mark.gimagesearch.utils.JsonUtils;
+import mark.gimagesearch.utils.NetworkUtils;
 
-public class GoogleImageSearchWrapper {
-    private static final String TAG = GoogleImageSearchWrapper.class.getName();
+public class GoogleImageSearchAPI {
+    private static final String TAG = GoogleImageSearchAPI.class.getName();
 
     public interface GoogleImageSearchCallbackInterface {
-        void imageSearchResponseReceived(ImageSearchResponse imageSearchResponse);
+        void imageSearchResponseReceived(GoogleImageList googleImageList);
     }
 
     public static void fetchImages(final String searchTerm, final GoogleImageSearchCallbackInterface callbackListener) {
@@ -36,10 +38,10 @@ public class GoogleImageSearchWrapper {
                     }
 
                     Log.i(TAG, "fetchImages - response received: " + builder.toString());
-                } catch(Exception e) {
+                } catch (Exception e) {
                     Log.e(TAG, "fetchImages - exception thrown: " + e);
 
-                    if(callbackListener != null) {
+                    if (callbackListener != null) {
                         callbackListener.imageSearchResponseReceived(null);
                     }
                 }
@@ -48,8 +50,8 @@ public class GoogleImageSearchWrapper {
 
                 Log.i(TAG, "fetchImages - ImageSearchResponse object created");
 
-                if(callbackListener != null) {
-                    callbackListener.imageSearchResponseReceived(imageSearchResponse);
+                if (callbackListener != null) {
+                    callbackListener.imageSearchResponseReceived(new GoogleImageList(imageSearchResponse));
                 }
             }
         });
