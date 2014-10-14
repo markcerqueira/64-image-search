@@ -2,10 +2,7 @@ package mark.gimagesearch;
 
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 
 import mark.gimagesearch.models.ImageSearchResponse;
@@ -24,52 +21,48 @@ public class GoogleImageSearchAPI {
     }
 
     public static void fetchImages(final String searchTerm, final GoogleImageList googleImageList, final GoogleImageSearchCallbackInterface callbackListener) {
+        // we REQUIRE that callbackListener be non-null
+        if (callbackListener == null) {
+            Log.e(TAG, "fetchImages - callbackListener CANNOT be null");
+            return;
+        }
+
         NetworkUtils.runInThreadPool(new Runnable() {
             @Override
             public void run() {
-                StringBuilder builder = new StringBuilder();
+                int page = (googleImageList == null ? 0 : googleImageList.getNextPageIndex()) * 4;
 
+                // TODO - error if pages is > 60
+
+                URL url = null;
                 try {
-                    int page = (googleImageList == null ? 0 : googleImageList.getNextPageIndex()) * 4;
-
-                    // TODO - error if pages is > 60
-
-                    URL url = new URL("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + URLEncoder.encode(searchTerm, "UTF-8") + "&start=" + URLEncoder.encode(page + "", "UTF-8"));
-
-                    Log.i(TAG, "fetchImages - request url is: " + url.toString());
-
-                    URLConnection connection = url.openConnection();
-                    connection.addRequestProperty("Referer", "www.mark.gg");
-
-                    String line;
-                    InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
-                    BufferedReader reader = new BufferedReader(inputStreamReader);
-                    while ((line = reader.readLine()) != null) {
-                        builder.append(line);
-                    }
-
-                    Log.i(TAG, "fetchImages - response received: " + builder.toString());
+                    url = new URL("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + URLEncoder.encode(searchTerm, "UTF-8") + "&start=" + URLEncoder.encode(page + "", "UTF-8"));
                 } catch (Exception e) {
-                    Log.e(TAG, "fetchImages - exception thrown: " + e);
-
-                    if (callbackListener != null) {
-                        callbackListener.imageSearchResponseReceived(null);
-                    }
+                    Log.e(TAG, "fetchImages - exception thrown when constructing url: " + e);
+                    callbackListener.imageSearchResponseReceived(null);
                 }
 
-                ImageSearchResponse imageSearchResponse = JsonUtils.parseJson(builder.toString(), ImageSearchResponse.class);
+                Log.i(TAG, "fetchImages - request url is: " + url.toString());
 
-                Log.i(TAG, "fetchImages - ImageSearchResponse object created");
+                // make the network call
+                String networkResponse = NetworkUtils.callUrl(url);
 
-                if (callbackListener != null) {
-                    if(googleImageList == null) {
-                        callbackListener.imageSearchResponseReceived(new GoogleImageList(imageSearchResponse));
-                    } else {
-                        GoogleImageList newGoogleImageList = googleImageList;
-                        newGoogleImageList.appendImageUrls(imageSearchResponse);
+                // parse network response into an ImageSearchResponse object
+                ImageSearchResponse imageSearchResponse = JsonUtils.parseJson(networkResponse, ImageSearchResponse.class);
 
-                        callbackListener.imageSearchResponseReceived(newGoogleImageList);
-                    }
+                // if this is a "new" request (first request for an image) create a new GoogleImageList object
+                if (googleImageList == null) {
+                    Log.i(TAG, "fetchImages - new GoogleImageList object created");
+
+                    callbackListener.imageSearchResponseReceived(new GoogleImageList(imageSearchResponse));
+                } else {
+                    Log.i(TAG, "fetchImages - appending result to existing GoogleImageList");
+
+                    // otherwise, append the current result to the existing GoogleImageList and return that
+                    GoogleImageList newGoogleImageList = googleImageList;
+                    newGoogleImageList.appendImageUrls(imageSearchResponse);
+
+                    callbackListener.imageSearchResponseReceived(newGoogleImageList);
                 }
             }
         });
