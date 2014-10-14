@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.2+'
+    }
+}
+
+apply plugin: 'android'
+apply plugin: 'android-apt'
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
@@ -37,3 +49,14 @@ android {
     }
 }
 
+apt {
+    arguments {
+        androidManifestFile variant.processResources.manifestFile
+        resourcePackageName "mark.gimagesearch"
+    }
+}
+
+dependencies {
+    apt "org.androidannotations:androidannotations:3.0+"
+    compile "org.androidannotations:androidannotations-api:3.0+"
+}
