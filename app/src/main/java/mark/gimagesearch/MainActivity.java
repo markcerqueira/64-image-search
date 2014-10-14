@@ -17,7 +17,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity);
     }
 
-    private void fetchImages(String searchQuery) {
+    private void fetchImages(final String searchQuery) {
         Log.i(TAG, "fetchImages - called with query: " + searchQuery);
 
         if(searchQuery == null) {
@@ -32,6 +32,15 @@ public class MainActivity extends Activity {
                 Log.i(TAG, "fetchImages - called back with " + googleImageList.getImageUrlList().size() + " images");
 
                 Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
+
+                GoogleImageSearchAPI.fetchImages(searchQuery, googleImageList, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
+                    @Override
+                    public void imageSearchResponseReceived(GoogleImageList googleImageList) {
+                        Log.i(TAG, "fetchImages - called back with " + googleImageList.getImageUrlList().size() + " images");
+
+                        Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
+                    }
+                });
             }
         });
     }

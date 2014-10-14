@@ -20,13 +20,24 @@ public class GoogleImageSearchAPI {
     }
 
     public static void fetchImages(final String searchTerm, final GoogleImageSearchCallbackInterface callbackListener) {
+        fetchImages(searchTerm, null, callbackListener);
+    }
+
+    public static void fetchImages(final String searchTerm, final GoogleImageList googleImageList, final GoogleImageSearchCallbackInterface callbackListener) {
         NetworkUtils.runInThreadPool(new Runnable() {
             @Override
             public void run() {
                 StringBuilder builder = new StringBuilder();
 
                 try {
-                    URL url = new URL("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + URLEncoder.encode(searchTerm, "UTF-8"));
+                    int page = (googleImageList == null ? 0 : googleImageList.getNextPageIndex()) * 4;
+
+                    // TODO - error if pages is > 60
+
+                    URL url = new URL("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + URLEncoder.encode(searchTerm, "UTF-8") + "&start=" + URLEncoder.encode(page + "", "UTF-8"));
+
+                    Log.i(TAG, "fetchImages - request url is: " + url.toString());
+
                     URLConnection connection = url.openConnection();
                     connection.addRequestProperty("Referer", "www.mark.gg");
 
@@ -51,7 +62,14 @@ public class GoogleImageSearchAPI {
                 Log.i(TAG, "fetchImages - ImageSearchResponse object created");
 
                 if (callbackListener != null) {
-                    callbackListener.imageSearchResponseReceived(new GoogleImageList(imageSearchResponse));
+                    if(googleImageList == null) {
+                        callbackListener.imageSearchResponseReceived(new GoogleImageList(imageSearchResponse));
+                    } else {
+                        GoogleImageList newGoogleImageList = googleImageList;
+                        newGoogleImageList.appendImageUrls(imageSearchResponse);
+
+                        callbackListener.imageSearchResponseReceived(newGoogleImageList);
+                    }
                 }
             }
         });
