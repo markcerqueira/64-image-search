@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Google Image Search</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-    <string name="search_hint">Search here!</string>
-    <string name="search_global_description">Search</string>
-    <string name="search_label">Search now</string>
+    <string name="app_name">64 Image Search</string>
+
+    <!-- MainActivity -->
+    <string name="loading_images">Loading images...</string>
+    <string name="no_image_results">No images found! :(</string>
+    <string name="welcome">Welcome to 64 Image Search!</string>
+    <string name="caveat_of_search">Click on the magnifying glass in the top right to get started, but realize that this app returns only the top 64 images because looking at any more would be a non-productive use of your time!</string>
 
 </resources>
