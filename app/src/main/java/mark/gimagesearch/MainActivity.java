@@ -79,6 +79,11 @@ public class MainActivity extends Activity {
             // TODO show error toast
         }
 
+        // if googleImageList is null, we are starting a query, so show loading view
+        if(googleImageList == null) {
+            mLoadingImagesView.setVisibility(View.VISIBLE);
+        }
+
         GoogleImageSearchAPI.fetchImages(searchQuery, googleImageList, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
             @Override
             public void imageSearchResponseReceived(GoogleImageList googleImageList) {
@@ -107,7 +112,7 @@ public class MainActivity extends Activity {
 
     @UiThread
     protected void updateViewVisibility(int itemCount) {
-        mIntroductionView.setVisibility(View.GONE);
+        mLoadingImagesView.setVisibility(View.GONE);
 
         mGridViewContainerView.setVisibility(itemCount == 0 ? View.GONE : View.VISIBLE);
         mNoResultsView.setVisibility(itemCount == 0 ? View.VISIBLE : View.GONE);

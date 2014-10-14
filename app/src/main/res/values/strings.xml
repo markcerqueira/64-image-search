@@ -7,6 +7,6 @@
     <string name="loading_images">Loading images...</string>
     <string name="no_image_results">No images found! :(</string>
     <string name="welcome">Welcome to 64 Image Search!</string>
-    <string name="caveat_of_search">Click on the magnifying glass in the top right to get started, but realize that this app returns only the top 64 images because looking at any more would be a non-productive use of your time!</string>
+    <string name="caveat_of_search">Click on the magnifying glass in the top right to get started. This app returns only the top 64 images because looking at any more would be a non-productive use of your time!</string>
 
 </resources>
