@@ -60,7 +60,7 @@ public class GoogleImageList {
         }
 
         for(ImageResult imageResult : imageSearchResponse.responseData.resultsList) {
-            mImageUrlList.add(imageResult.url);
+            mImageUrlList.add(imageResult.tbUrl);
         }
 
         pagesFetched++;
