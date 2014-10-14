@@ -45,6 +45,10 @@ public class GoogleImageList {
         return pagesFetched < 16;
     }
 
+    public boolean hasFetchedMaxImages() {
+        return mImageUrlList.size() == 64;
+    }
+
     public int getNextPageIndex() {
         return pagesFetched + 1;
     }

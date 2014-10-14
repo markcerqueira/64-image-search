@@ -12,6 +12,10 @@ import android.widget.GridView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
@@ -37,7 +41,21 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        configureImageLoader();
+
         setupAdapters();
+    }
+
+    private void configureImageLoader() {
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
+                .memoryCache(new LruMemoryCache(2 * 1024 * 1024))
+                .memoryCacheSize(2 * 1024 * 1024)
+                .memoryCacheSizePercentage(20)
+                .diskCacheSize(50 * 1024 * 1024)
+                .diskCacheFileCount(200)
+                .build();
+
+        ImageLoader.getInstance().init(config);
     }
 
     private void setupAdapters() {
@@ -65,6 +83,8 @@ public class MainActivity extends Activity {
 
                 final ImageGridListItem imageGridListItem = (ImageGridListItem) convertView;
 
+                imageGridListItem.configure(mCurrentGoogleImageList.getImageUrlList().get(position));
+
                 return convertView;
             }
         };
@@ -82,6 +102,17 @@ public class MainActivity extends Activity {
         // if googleImageList is null, we are starting a query, so show loading view
         if(googleImageList == null) {
             mLoadingImagesView.setVisibility(View.VISIBLE);
+        } else {
+            Log.i(TAG, "fetchImages - passed googleImageList contains " + googleImageList.getImageUrlList().size() + " images");
+        }
+
+        if (googleImageList != null && googleImageList.hasFetchedMaxImages()) {
+            Log.i(TAG, "fetchImages - time to show the results!");
+
+            mImageGridView.setAdapter(mImageAdapter);
+            updateViewVisibility(googleImageList.getImageUrlList().size());
+
+            return;
         }
 
         GoogleImageSearchAPI.fetchImages(searchQuery, googleImageList, new GoogleImageSearchAPI.GoogleImageSearchCallbackInterface() {
@@ -100,14 +131,8 @@ public class MainActivity extends Activity {
     protected void updateWithNewGoogleImageList(GoogleImageList googleImageList) {
         mCurrentGoogleImageList = googleImageList;
 
-        mImageGridView.setAdapter(mImageAdapter);
-
         // pro-actively fetch the URLs for the rest of the images (up to 64)
-        if(mCurrentGoogleImageList.canFetchMoreResults()) {
-            fetchImages(googleImageList.getSearchTerm(), googleImageList);
-        }
-
-        updateViewVisibility(googleImageList.getImageUrlList().size());
+        fetchImages(googleImageList.getSearchTerm(), googleImageList);
     }
 
     @UiThread
