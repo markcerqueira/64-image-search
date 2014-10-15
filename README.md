@@ -31,6 +31,7 @@ Or we could also fetch a screen's worth of images and display those, fetching th
 * Screen rotation is not supported. Use @InstanceState to save relevant data about current activity state and rebuild activity following re-creation after rotation.
 * If a search is underway, if you are quick, you can start another search, which would likely cause some issues.
 * No support for off-line. Improve messaging to users trying to use this app when not connected to a network.
+* Address the TODOs (e.g. updating URL query params, error-checking on page count in fetchImages call in GoogleImageSearchAPI, show error toast if search query is null, check if we need "referrer" property on URL connection).
 * Get hired to work at Google on the Images API and make it better. :)
 
 External Libraries and Sources
