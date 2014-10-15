@@ -10,6 +10,18 @@ About
 * The Google Image Search API can only return up to 64 images (hence the name of the app). This limit is communicated to the user when they first launch the app.
 * Google Image Search API returns both full-size image URLs and thumbnail URLs. This app uses thumbnail URLs for displaying images (see comment in Notes section for reasoning).
 
+File Overview
+------
+This section briefly describes the role of packages and files in the mark.gimagesearch package (app/src/main/java/mark/gimagesearch):
+
+* models folder - contains various "model" classes that are used to auto-parse the response from the Google Image API using the Jackson JSON annotations
+* utils folder - contains a JSON utilities class for auto-parsing strings/JsonNodes into objects and NetworkUtils, a network functionality helper class
+* GoogleImageSearchAPI - makes the network call to Google Image Search, parsing the response using the classes in the models folder, and then pushes that object into the GoogleImageList which provides a simplified data-set for the caller of this class
+* GoogleImageList - the main network response class is ImageSearchResponse (in models folder), but this class contains only the information we use in the app with some additional helper methods
+* SquareImageView - a borrowed class that allows us to display images in a square, which makes the grid view look a lot nicer
+* ImageGridListItem - the items that populate the grid view; uses the SquareImageView to display images in a uniform manner
+* MainActivity - the main (and only) activity of our app; interfaces with the GoogleImageSearchAPI to make queries, which returns a GoogleImageList, and has a grid view that contains ImageGridListItems
+
 Notes
 ------
 
