@@ -32,10 +32,11 @@ public class GoogleImageSearchAPI {
             public void run() {
                 int page = (googleImageList == null ? 0 : googleImageList.getNextPageIndex()) * 4;
 
-                // TODO - error if pages is > 60
+                // TODO - error out if pages is > 60
 
                 URL url = null;
                 try {
+                    // TODO - google says we should add IP address so they can verify we're not abusing the API
                     url = new URL("https://ajax.googleapis.com/ajax/services/search/images?v=1.0&q=" + URLEncoder.encode(searchTerm, "UTF-8") + "&start=" + URLEncoder.encode(page + "", "UTF-8"));
                 } catch (Exception e) {
                     Log.e(TAG, "fetchImages - exception thrown when constructing url: " + e);

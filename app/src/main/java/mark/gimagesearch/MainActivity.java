@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
     @ViewById(R.id.loading_images_textview) protected TextView mLoadingImagesTextView;
 
     @ViewById(R.id.no_results_view) protected View mNoResultsView;
-    @ViewById(R.id.no_results_textview) protected View mNoResultsTextView;
+    @ViewById(R.id.no_results_textview) protected TextView mNoResultsTextView;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,24 +90,35 @@ public class MainActivity extends Activity {
         };
     }
 
-    private void fetchImages(final String searchQuery, final GoogleImageList googleImageList) {
+    // the main workhouse of our application
+    // if a GoogleImageList is provided, this method will append the results of the network call
+    // to this list (up to 64 images)
+    // once 64 images have been retrieved or some network error is thrown (via boolean flag passed
+    // in), the method will refresh the list view
+    private void fetchImages(final String searchQuery, final GoogleImageList googleImageList, final boolean previousNetworkCallSucceeded) {
         Log.i(TAG, "fetchImages - called with query: " + searchQuery);
 
         if(searchQuery == null) {
             Log.e(TAG, "fetchImages - search query is null");
 
-            // TODO show error toast
+            // TODO show Toast explaining error
         }
 
         // if googleImageList is null, we are starting a query, so show loading view
         if(googleImageList == null) {
             mLoadingImagesView.setVisibility(View.VISIBLE);
+
+            // update text for loading (and potentially showing no results too)
+            mLoadingImagesTextView.setText(String.format(getString(R.string.loading_images_of_s), searchQuery));
+            mNoResultsTextView.setText(String.format(getString(R.string.no_image_results_of_s), searchQuery));
+
             mNoResultsView.setVisibility(View.GONE);
         } else {
             Log.i(TAG, "fetchImages - passed googleImageList contains " + googleImageList.getImageUrlList().size() + " images");
         }
 
-        if (googleImageList != null && googleImageList.hasFetchedMaxImages()) {
+        // if our previous call failed (abort early) OR we've fetched the max number of images
+        if (!previousNetworkCallSucceeded || (googleImageList != null && googleImageList.hasFetchedMaxImages())) {
             Log.i(TAG, "fetchImages - time to show the results!");
 
             mImageGridView.setAdapter(mImageAdapter);
@@ -126,17 +137,20 @@ public class MainActivity extends Activity {
 
                 // Log.i(TAG, "fetchImages - url list is: " + googleImageList.imageUrlListToString());
 
-                updateWithNewGoogleImageList(googleImageList);
+                updateWithNewGoogleImageList(googleImageList, googleImageList != null);
             }
         });
     }
 
     @UiThread
-    protected void updateWithNewGoogleImageList(GoogleImageList googleImageList) {
-        mCurrentGoogleImageList = googleImageList;
+    protected void updateWithNewGoogleImageList(GoogleImageList googleImageList, boolean networkCallSucceeded) {
+        if(googleImageList != null) {
+            mCurrentGoogleImageList = googleImageList;
+        }
 
         // pro-actively fetch the URLs for the rest of the images (up to 64)
-        fetchImages(googleImageList.getSearchTerm(), googleImageList);
+        // if we failed (previous return result was null), we will not try to fetch anymore
+        fetchImages(mCurrentGoogleImageList.getSearchTerm(), googleImageList, networkCallSucceeded);
     }
 
     @UiThread
@@ -162,23 +176,6 @@ public class MainActivity extends Activity {
 
     // configures all the listeners related to the search functionality
     private void configureSearchElements(final SearchView searchView) {
-        searchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "setOnSearchClickListener - begin");
-            }
-        });
-
-        // configure the clear search text field action
-        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                Log.i(TAG, "onClose");
-
-                return true;
-            }
-        });
-
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -186,7 +183,7 @@ public class MainActivity extends Activity {
 
                 searchView.clearFocus();
 
-                fetchImages(query, null);
+                fetchImages(query, null, true);
 
                 return true;
             }
