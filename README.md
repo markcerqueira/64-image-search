@@ -44,6 +44,7 @@ Or we could also fetch a screen's worth of images and display those, fetching th
 * If a search is underway, if you are quick, you can start another search, which would likely cause some issues.
 * No support for off-line. Improve messaging to users trying to use this app when not connected to a network.
 * Address the TODOs (e.g. updating URL query params, error-checking on page count in fetchImages call in GoogleImageSearchAPI, show error toast if search query is null, check if we need "referrer" property on URL connection).
+* The breakdown of classes in the models folder might be overkill given we're serializing all data sent back, but only using the thumbnail URL. 
 * Get hired to work at Google on the Images API and make it better. :)
 
 External Libraries and Sources
